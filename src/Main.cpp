@@ -1,3 +1,4 @@
+#include <random>
 #include "Main.hpp"
 
 int main()
@@ -7,19 +8,24 @@ int main()
 #endif
 
 	sf::RenderWindow window(sf::VideoMode(640, 480), "SFML works!");
+
+	window.setKeyRepeatEnabled(false);
 #ifdef SFML_SYSTEM_WINDOWS
 	__windowsHelper.setIcon(window.getSystemHandle());
 #endif
 
-	sf::CircleShape shape(window.getSize().x / 2);
-	shape.setFillColor(sf::Color::White);
+	sf::Color color(sf::Color::Red);
 
-	sf::Texture shapeTexture;
-	shapeTexture.loadFromFile("content/sfml.png");
-	shape.setTexture(&shapeTexture);
+	std::uniform_int_distribution<int> randomColorRange(0, 255);
+	std::random_device rd;
+	std::mt19937 randomNumbers(rd());
 
 	sf::Event event;
 	sf::Clock clock;
+
+	sf::CircleShape circle(200);
+	circle.setFillColor(color);
+	circle.setOrigin(circle.getRadius(), circle.getRadius());
 
 	while (window.isOpen())
 	{
@@ -27,11 +33,21 @@ int main()
 		{
 
 			if (event.type == sf::Event::Closed)
+			{
 				window.close();
+			}
+			if (event.type == sf::Event::EventType::KeyPressed)
+			{
+				if (event.key.code == sf::Keyboard::Space)
+				{
+					color.r = randomColorRange(randomNumbers);
+					circle.setFillColor(color);
+					circle.setPosition(randomColorRange(randomNumbers),randomColorRange(randomNumbers));
+				}
+			}
 		}
-
 		window.clear();
-		window.draw(shape);
+		window.draw(circle);
 		window.display();
 	}
 
